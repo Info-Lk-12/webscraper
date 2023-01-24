@@ -13,7 +13,8 @@ async def main():
 
         urls = [
             'https://www.inf-schule.de/',
-            'https://www.google.com/'
+            'https://www.google.com/',
+            "https://mpg-trier.de/"
         ]
 
         tasks = [fetch(session, url) for url in urls]
@@ -24,12 +25,13 @@ async def main():
         c = conn.cursor()
 
         
-        c.execute('''CREATE TABLE IF NOT EXISTS results (title TEXT)''')
+        c.execute('''CREATE TABLE IF NOT EXISTS results (title TEXT, url TEXT, content TEXT)''')
 
-        for html in html_pages:
+        for i, html in enumerate(html_pages):
             soup = BeautifulSoup(html, 'html.parser')
             title = soup.find('title').text
-            c.execute('''INSERT INTO results VALUES (?)''', (title, ))
+            data = soup.find_all("h2")
+            c.execute('''INSERT INTO results VALUES (?, ?, ?)''', (title, urls[i], str(data)))
             
         conn.commit()
         conn.close() 
